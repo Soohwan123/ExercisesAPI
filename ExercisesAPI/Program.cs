@@ -1,6 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ExercisesAPI.DAL;
-
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -27,6 +29,31 @@ builder.Services.AddCors(options =>
     });
 });
 
+// jwt addition
+// get key from settings
+var appSettings = builder.Configuration.GetSection("AppSettings").GetValue<string>("Secret");
+var key = Encoding.ASCII.GetBytes(appSettings);
+
+// add scheme and options
+builder.Services.AddAuthentication(scheme =>
+{
+    scheme.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    scheme.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.RequireHttpsMetadata = false;
+    options.SaveToken = true;
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(key),
+        ValidateIssuer = false,
+        ValidateAudience = false
+    };
+});
+
+
 
 var app = builder.Build();
 
@@ -39,7 +66,11 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseStaticFiles();
+
 app.UseCors(MyAllowSpecificOrigins);
+
+app.UseAuthentication();
 
 app.UseAuthorization();
 
