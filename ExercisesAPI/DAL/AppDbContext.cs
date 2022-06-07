@@ -9,5 +9,7 @@ namespace ExercisesAPI.DAL
         public virtual DbSet<MenuItem>? MenuItems { get; set; }
         public virtual DbSet<Category>? Categories { get; set; }
         public virtual DbSet<User>? Users { get; set; }
+        public virtual DbSet<Tray>? Trays { get; set; }
+        public virtual DbSet<TrayItem>? TrayItems { get; set; }
     }
 }
